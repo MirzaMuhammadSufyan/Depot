@@ -17,7 +17,8 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create product" do
     assert_difference("Product.count") do
-      post products_url, params: { product: { description: @product.description, price: @product.price, title: @product.title } }
+      post products_url, params: { product: { description: @product.description, price: @product.price, title: "@product.title #{rand{1000..9999}}", image: fixture_file_upload('lorem.jpg', 'image/jpeg') } }
+      puts response.body # Is se terminal par error ki wajah nazar aa jayegi
     end
 
     assert_redirected_to product_url(Product.last)
@@ -34,7 +35,7 @@ class ProductsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update product" do
-    patch product_url(@product), params: { product: { description: @product.description, price: @product.price, title: @product.title } }
+    patch product_url(@product), params: { product: { description: @product.description, price: @product.price, title: "@product.title #{rand{1000..9999}}", image: fixture_file_upload('lorem.jpg','image/jpeg') } }
     assert_redirected_to product_url(@product)
   end
 
