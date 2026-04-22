@@ -7,6 +7,7 @@
 # Visit https://pragprog.com/titles/rails8 for more book information.
 #---
 class Product < ApplicationRecord
+  has_many :line_items
   has_one_attached :image
   after_commit -> { broadcast_refresh_later_to "products" }
   validates :title, :description, :image, presence: true
@@ -23,4 +24,15 @@ class Product < ApplicationRecord
     end
   end
   validates :price, numericality: { greater_than_or_equal_to: 0.01 }
+
+  before_destroy :ensure_not_referenced_by_any_line_item
+
+  private
+
+  def ensure_not_referenced_by_any_line_item
+    unless line_items.empty?
+      errors.add(:base, "Line Items present")
+      throw :abort
+    end
+  end
 end
