@@ -10,8 +10,11 @@ en:
   store:
     index:
       title_html: "Your Pragmatic Catalog"
+    show:
+      back: "Back"
     product:
       add_html: "Add to Cart"
+      show: "Show"
 
   carts:
     cart:

@@ -16,6 +16,11 @@
           line_items_path(product_id: product),
           form_class: "inline",
           class: 'ml-4 rounded-lg py-1 px-2 text-white bg-green-600' %>
+
+        <%= link_to t(".show"),
+          store_product_path(product, locale: I18n.locale),
+          data: { turbo_frame: "_top" },
+          class: "ml-2 rounded-lg py-1 px-2 text-white bg-green-500 inline-block" %>
       </div>
     </div>
   </li>

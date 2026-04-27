@@ -12,4 +12,8 @@ class StoreController < ApplicationController
     end
 
   end
+
+  def show
+    @product = Product.find(params.expect(:id))
+  end
 end

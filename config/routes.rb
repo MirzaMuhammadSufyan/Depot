@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     resources :orders
     resources :line_items
     resources :carts
+    get "products/:id", to: "store#show", as: :store_product
     root "store#index", as: "store_index", via: :all
   end
 end

@@ -10,8 +10,11 @@ es:
   store:
     index:
       title_html: "Su Catálogo de Pragmatic"
+    show:
+      back: "Volver"
     product:
       add_html: "Añadir al Carrito"
+      show: "Ver"
 
   carts:
     cart:
