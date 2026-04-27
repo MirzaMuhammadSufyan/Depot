@@ -52,7 +52,7 @@ class CartsController < ApplicationController
     @cart.destroy!
 
     respond_to do |format|
-      format.html { redirect_to carts_path, notice: "Cart was successfully destroyed.", status: :see_other }
+      format.html { redirect_to store_index_path, notice: "Cart was successfully Cleared.", status: :see_other }
       format.json { head :no_content }
     end
   end
