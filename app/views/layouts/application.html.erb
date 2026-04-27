@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <title><%= content_for(:title) || "Pragprog Books Online Store" %></title>
+  <title><%= content_for(:title) || t(".title") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -24,8 +24,23 @@
   </head>
 
   <body>
-    <header class="bg-green-700">
-      <%= image_tag 'logo.svg', alt: 'The Pragmatic Bookshelf' %>
+    <header class="bg-green-700 ">
+
+    <div class="flex justify-between items-center">
+  <%= image_tag 'logo.svg', alt: 'The Pragmatic Bookshelf' %>
+  
+  <div data-controller="locale">
+    <%= form_with url: store_index_path, class: "locale" do %>
+      <%= select_tag "set_locale",
+          options_for_select(Rails.configuration.x.languages, I18n.locale.to_s),
+          class: "text-white bg-green-700 rounded px-2 py-1",
+          onchange: "this.form.submit()" %>
+
+      <%= submit_tag "submit", data: { "locale-target" => "submit" }, class: "hidden" %>
+    <% end %>
+  </div>
+</div>
+
       <h1><%= @page_title %></h1>
     </header>
 
@@ -33,10 +48,10 @@
       <nav class="bg-green-900 p-6">
         <%= render partial: 'layouts/cart', locals: { cart: @cart } %>
         <ul class="text-gray-300 leading-8">
-          <li><a href="/">Home</a></li>
-          <li><a href="/questions">Questions</a></li>
-          <li><a href="/news">News</a></li>
-          <li><a href="/contact">Contact</a></li>
+          <li><a href="/"><%= t(".home") %></a></li>
+          <li><a href="/questions"><%= t(".questions") %></a></li>
+          <li><a href="/news"><%= t(".news") %></a></li>
+          <li><a href="/contact"><%= t(".contact") %></a></li>
         </ul>
 
         <hr class="my-2">

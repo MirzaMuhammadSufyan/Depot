@@ -13,7 +13,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "should get new" do
     get new_order_url
-    assert_redirected_to store_index_url
+    assert_redirected_to store_index_url(locale: "en")
   end
 
   test "should create order" do
@@ -24,7 +24,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
       post orders_url, params: { order: { address: @order.address, email: @order.email, name: @order.name, pay_type: @order.pay_type } }
     end
 
-    assert_redirected_to store_index_url
+    assert_redirected_to store_index_url(locale: "en")
     assert_nil Cart.find_by(id: cart_id)
     assert_equal 1, Order.last.line_items.count
   end
