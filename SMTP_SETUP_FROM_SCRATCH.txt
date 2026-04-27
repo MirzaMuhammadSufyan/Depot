@@ -1,0 +1,166 @@
+SMTP Setup in Depot (From Scratch)
+==================================
+
+1) Goal
+-------
+Send real order confirmation emails using Gmail SMTP from this Rails app.
+
+
+2) Gmail Account Requirements
+-----------------------------
+- Enable 2-Step Verification on your Google account.
+- Create an App Password:
+  Google Account -> Security -> App passwords
+- Use the app password (NOT your normal Gmail password).
+
+
+3) Rails Credentials Setup
+--------------------------
+Run:
+  EDITOR=nano bin/rails credentials:edit
+
+Add:
+  smtp:
+    user_name: yourgmail@gmail.com
+    password: your_16_char_app_password
+
+Save and exit.
+
+
+4) Development Environment SMTP Config
+--------------------------------------
+File: config/environments/development.rb
+
+Important settings:
+- config.action_mailer.raise_delivery_errors = true
+- config.action_mailer.perform_caching = false
+- config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+- config.action_mailer.delivery_method = :smtp
+- config.action_mailer.smtp_settings = {
+    address: "smtp.gmail.com",
+    port: 587,
+    domain: "gmail.com",
+    user_name: Rails.application.credentials.dig(:smtp, :user_name),
+    password: Rails.application.credentials.dig(:smtp, :password),
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+
+Why:
+- Development should show delivery errors immediately.
+- SMTP config in development is needed if you want real local email delivery.
+
+
+5) Production Environment SMTP Config
+-------------------------------------
+File: config/environments/production.rb
+
+Important settings:
+- config.action_mailer.delivery_method = :smtp
+- config.action_mailer.raise_delivery_errors = true
+- config.action_mailer.perform_caching = false
+- config.action_mailer.default_url_options = {
+    host: ENV.fetch("APP_HOST", "example.com"),
+    protocol: "https"
+  }
+- config.action_mailer.smtp_settings = {
+    address: "smtp.gmail.com",
+    port: 587,
+    domain: "gmail.com",
+    user_name: Rails.application.credentials.dig(:smtp, :user_name),
+    password: Rails.application.credentials.dig(:smtp, :password),
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+
+Important:
+- Do NOT use openssl_verify_mode: 'none' in production.
+- Set APP_HOST in your deployment environment.
+
+
+6) Mailer Sender ("from") Setup
+-------------------------------
+File: app/mailers/order_mailer.rb
+
+Current default from:
+  default from: -> { Rails.application.credentials.dig(:smtp, :user_name) || "depot@example.com" }
+
+Why:
+- Aligning the sender with Gmail account improves delivery reliability.
+
+
+7) Order Flow (How Email Is Triggered)
+--------------------------------------
+- Order creation queues job:
+  app/controllers/orders_controller.rb
+  ChargeOrderJob.perform_later(@order, pay_type_params.to_h)
+
+- Background job:
+  app/jobs/charge_order_job.rb
+  Calls order.charge!(...)
+
+- Payment + mail logic:
+  app/models/order.rb
+  charge! calls Pago.make_payment(...)
+  If success -> OrderMailer.received(self).deliver_later
+
+- Fake payment gateway:
+  lib/pago.rb
+
+
+8) Templates Used by Mailer
+---------------------------
+Received email:
+- app/views/order_mailer/received.html.erb
+- app/views/order_mailer/received.text.erb
+
+Shipped email:
+- app/views/order_mailer/shipped.html.erb
+- app/views/order_mailer/shipped.text.erb
+
+Rails sends multipart email (text + html) when both templates exist.
+
+
+9) Tests Available
+------------------
+Mailer test:
+- test/mailers/order_mailer_test.rb
+
+System flow test:
+- test/system/orders_test.rb
+Includes end-to-end checkout + perform_enqueued_jobs + mail assertions.
+
+
+10) Commands to Verify
+----------------------
+A) Run mailer tests:
+  bin/rails test test/mailers/order_mailer_test.rb
+
+B) Run system flow tests:
+  bin/rails test test/system/orders_test.rb
+
+C) Direct real send test in development:
+  bin/rails runner 'order = Order.order(:id).last; abort("No order found") unless order; mail = OrderMailer.received(order).deliver_now; puts "Delivered to: #{mail.to.inspect}"'
+
+
+11) If You Still Don't Receive in Inbox
+---------------------------------------
+- Check Spam/Promotions/All Mail folders.
+- Confirm credentials contain valid Gmail + app password.
+- Restart Rails server after config changes.
+- Ensure background jobs are running in the target environment.
+- Watch logs for:
+  - Enqueued ChargeOrderJob
+  - Performing ChargeOrderJob
+  - Delivered mail ...
+
+
+12) Quick Checklist
+-------------------
+[ ] Gmail app password created
+[ ] credentials updated with smtp.user_name/password
+[ ] development.rb SMTP configured (for local real sends)
+[ ] production.rb SMTP configured
+[ ] APP_HOST set in production environment
+[ ] Rails restarted
+[ ] Order placed and logs show "Delivered mail"
