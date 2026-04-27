@@ -1,5 +1,5 @@
 class OrderMailer < ApplicationMailer 
-  default from: -> { Rails.application.credentials.dig(:smtp, :user_name) || "depot@example.com" }
+  default from: -> { ENV["SMTP_USER_NAME"] || "depot@example.com" }
   
   def received(order)
     @order = order

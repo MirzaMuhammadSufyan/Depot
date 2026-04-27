@@ -1,4 +1,6 @@
 class CartsController < ApplicationController
+  allow_unauthenticated_access only: %i[ create update destroy ]
+
   before_action :set_cart, only: %i[ show edit update destroy ]
 
   # GET /carts or /carts.json

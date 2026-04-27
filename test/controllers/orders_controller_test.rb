@@ -3,6 +3,7 @@ require "test_helper"
 class OrdersControllerTest < ActionDispatch::IntegrationTest
   setup do
     @order = orders(:one)
+    login_as users(:one)
   end
 
   test "should get index" do
@@ -33,7 +34,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
     post orders_url, params: { order: { address: "", email: "", name: "", pay_type: "" } }
 
-    assert_response :success
+    assert_response :unprocessable_entity
     assert_select "#error_explanation"
   end
 

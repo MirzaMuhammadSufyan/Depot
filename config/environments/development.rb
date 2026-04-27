@@ -1,6 +1,18 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  smtp_user_name = ENV["SMTP_USER_NAME"]
+  smtp_password = ENV["SMTP_PASSWORD"]
+  if smtp_user_name.blank? || smtp_password.blank?
+    begin
+      smtp_user_name ||= Rails.application.credentials.dig(:smtp, :user_name)
+      smtp_password ||= Rails.application.credentials.dig(:smtp, :password)
+    rescue ActiveSupport::MessageEncryptor::InvalidMessage
+      smtp_user_name ||= nil
+      smtp_password ||= nil
+    end
+  end
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
@@ -46,8 +58,8 @@ Rails.application.configure do
     address: "smtp.gmail.com",
     port: 587,
     domain: "gmail.com",
-    user_name: Rails.application.credentials.dig(:smtp, :user_name),
-    password: Rails.application.credentials.dig(:smtp, :password),
+    user_name: smtp_user_name,
+    password: smtp_password,
     authentication: :plain,
     enable_starttls_auto: true
   }
