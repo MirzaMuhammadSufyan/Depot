@@ -124,3 +124,43 @@ seed_products.each do |attrs|
 
   product.save!
 end
+
+
+# Pehle check karo ke User model exist karta hai ya nahi
+if defined?(User)
+  # Admin user find or create by email
+  admin_email = "admin@example.com"
+  admin_password = "password123"  # Change this to a secure password in production!
+  
+  admin_user = User.find_or_initialize_by(email: admin_email)
+  
+  if admin_user.new_record?
+    admin_user.password = admin_password
+    admin_user.password_confirmation = admin_password
+    admin_user.save!
+    puts "✅ Admin user created successfully!"
+    puts "   Email: #{admin_email}"
+    puts "   Password: #{admin_password}"
+    puts "   ⚠️  Please change this password in production!"
+  else
+    puts "✅ Admin user already exists: #{admin_email}"
+    # Agar user exist karta hai lekin password update karna ho to:
+    # admin_user.update(password: admin_password, password_confirmation: admin_password)
+  end
+  
+  # Agar admin field hai to set karo (agar aapke paas admin boolean field hai)
+  if admin_user.respond_to?(:admin=)
+    admin_user.admin = true unless admin_user.admin?
+    admin_user.save! if admin_user.changed?
+  end
+  
+  # Agar role field hai (jese enum ya string) to set karo
+  if admin_user.respond_to?(:role=) && admin_user.role != "admin"
+    admin_user.role = "admin"
+    admin_user.save!
+  end
+  
+else
+  puts "⚠️  User model not found! Skipping admin user creation."
+  puts "   Make sure you have generated the User model (e.g., with has_secure_password)"
+end

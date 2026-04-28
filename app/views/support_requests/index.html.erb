@@ -1,0 +1,78 @@
+<% content_for :title, "Support Requests" %>
+
+<div class="w-full space-y-6">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 text-green-700 font-medium rounded-md inline-block"><%= notice %></p>
+  <% end %>
+
+  <h1 class="font-bold text-4xl">Support Requests</h1>
+
+  <% if @support_requests.any? %>
+    <ul class="space-y-8">
+      <% @support_requests.each do |support_request| %>
+        <li class="border-b border-gray-200 pb-8">
+          <h2 class="text-2xl font-bold">
+            On <%= support_request.created_at.to_formatted_s(:long) %>
+            <code><%= support_request.email %></code> writes:
+          </h2>
+
+          <blockquote class="ml-4 mt-3 space-y-2">
+            <h3 class="font-bold"><%= support_request.subject %></h3>
+            <%= simple_format(support_request.body) %>
+          </blockquote>
+
+          <% if support_request.order %>
+            <h3 class="mt-4 text-xl font-bold">Recent Order</h3>
+            <dl class="ml-4 space-y-1">
+              <dt class="font-semibold">Name</dt>
+              <dd><%= support_request.order.name %></dd>
+
+              <dt class="font-semibold">Email</dt>
+              <dd><%= support_request.order.email %></dd>
+
+              <dt class="font-semibold">Address</dt>
+              <dd><%= support_request.order.address %></dd>
+
+              <dt class="font-semibold">Pay Type</dt>
+              <dd><%= support_request.order.pay_type %></dd>
+
+              <dt class="font-semibold">Line Items</dt>
+              <dd>
+                <ul class="ml-4 list-disc">
+                  <% support_request.order.line_items.each do |line_item| %>
+                    <li>
+                      <%= line_item.product.title %>
+                      (<%= number_to_currency(line_item.product.price) %>)
+                    </li>
+                  <% end %>
+                </ul>
+              </dd>
+            </dl>
+          <% else %>
+            <h3 class="mt-4 font-semibold text-amber-700">No associated order</h3>
+          <% end %>
+
+          <% if support_request.response.blank? %>
+            <%= form_with model: support_request, local: true, class: "depot_form mt-6 space-y-4" do |form| %>
+              <div class="field space-y-2">
+                <%= form.label :response, "Write Response", class: "block font-semibold" %>
+                <%= form.rich_textarea :response, id: dom_id(support_request, :response) %>
+              </div>
+
+              <div class="actions">
+                <%= form.submit "Send Response", class: "rounded-md px-3.5 py-2.5 bg-green-700 hover:bg-green-600 text-white font-medium cursor-pointer" %>
+              </div>
+            <% end %>
+          <% else %>
+            <h3 class="mt-6 font-semibold">Our response:</h3>
+            <blockquote class="prose mt-2 max-w-none">
+              <%= support_request.response %>
+            </blockquote>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No support requests yet.</p>
+  <% end %>
+</div>

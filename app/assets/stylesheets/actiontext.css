@@ -1,0 +1,5 @@
+@import "trix";
+
+.trix-content {
+  line-height: 1.5;
+}

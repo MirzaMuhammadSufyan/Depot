@@ -1,0 +1,10 @@
+one:
+  email: dave@example.org
+  subject: Missing order
+  body: I cannot find my order.
+  order: one
+
+two:
+  email: chris@somewhere.net
+  subject: Need help
+  body: I cannot check out.
