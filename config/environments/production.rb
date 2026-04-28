@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # Prepare the ingress controller used to receive mail
+  # config.action_mailbox.ingress = :relay
+
   smtp_user_name = ENV["SMTP_USER_NAME"]
   smtp_password = ENV["SMTP_PASSWORD"]
   if smtp_user_name.blank? || smtp_password.blank?
