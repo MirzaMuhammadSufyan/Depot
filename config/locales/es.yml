@@ -49,6 +49,11 @@ es:
 
   thanks: "Gracias por su pedido"
 
+  products:
+    index:
+      title: "Productos"
+      new_product: "Nuevo producto"
+
   number:
     currency:
       format:

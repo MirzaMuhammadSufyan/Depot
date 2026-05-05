@@ -49,7 +49,10 @@ en:
 
   thanks: "Thank you for your order"
 
-  number:
+  products:
+    index:
+      title: "Products"
+      new_product: "New product"
     currency:
       format:
         unit: "$"
